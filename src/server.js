@@ -1,17 +1,19 @@
+require("dotenv").config(); // Baris paling atas wajib ini
 const express = require("express");
 const midtransClient = require("midtrans-client");
 const cors = require("cors");
 
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Inisialisasi Midtrans Snap
-// PENTING: Segera ganti Server Key ini di dashboard Midtrans jika sudah selesai testing!
+// Inisialisasi Midtrans Snap menggunakan variabel lingkungan (.env)
 let snap = new midtransClient.Snap({
   isProduction: false,
-  serverKey: "Mid-server-zapk8FOg_12aMVR33X3s4ANg",
-  clientKey: "Mid-client-O0rog9RHuaUxquby",
+  serverKey: process.env.MIDTRANS_SERVER_KEY,
+  clientKey: process.env.MIDTRANS_CLIENT_KEY,
 });
 
 app.post("/api/checkout", async (req, res) => {
@@ -28,7 +30,7 @@ app.post("/api/checkout", async (req, res) => {
       return sum + Number(item.price) * Number(item.quantity);
     }, 0);
 
-    // 3. Susun parameter Midtrans (Hanya satu kali deklarasi)
+    // 3. Susun parameter Midtrans
     const parameter = {
       transaction_details: {
         order_id:
@@ -39,7 +41,7 @@ app.post("/api/checkout", async (req, res) => {
         id: String(item.id),
         price: Number(item.price),
         quantity: Number(item.quantity),
-        name: item.name.substring(0, 50), // Batasi nama produk agar tidak error
+        name: item.name.substring(0, 50),
       })),
       credit_card: {
         secure: true,
