@@ -381,6 +381,73 @@ body {
   border-radius: 10px;
 }
 
+/* --- Customer Form Inside Cart --- */
+.customer-form {
+  margin: 1.5rem 0;
+  padding: 1.2rem;
+  background-color: #f9f9f9; /* Abu-abu sangat muda agar kontras dengan putih */
+  border-radius: 12px;
+  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.customer-form p {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--bg);
+  margin-bottom: 0.5rem;
+  border-left: 4px solid var(--primary);
+  padding-left: 10px;
+}
+
+/* Styling Input Group di Keranjang */
+.input-group-cart {
+  width: 100%;
+}
+
+.input-group-cart input {
+  width: 100%;
+  padding: 1rem;
+  background-color: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  color: var(--bg);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.1rem;
+  transition: 0.3s ease;
+}
+
+/* Efek Focus: Saat user mengetik */
+.input-group-cart input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(179, 139, 89, 0.1);
+}
+
+/* Placeholder Styling */
+.input-group-cart input::placeholder {
+  color: #aaa;
+  font-size: 1rem;
+}
+
+/* --- State Khusus Tombol Checkout --- */
+/* (Menambahkan detail pada .checkout-btn yang sudah kamu punya) */
+.checkout-btn.disabled {
+  background-color: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Animasi Loading pada Tombol */
+.checkout-btn:disabled:not(.disabled) {
+  opacity: 0.8;
+  cursor: wait;
+}
+
 .quantity-badge {
   display: inline-block;
   padding: 1px 5px;

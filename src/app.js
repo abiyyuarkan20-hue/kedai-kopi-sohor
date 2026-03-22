@@ -19,13 +19,31 @@ document.addEventListener("alpine:init", () => {
     cartOpen: false,
     modalOpen: false,
     activeItem: {},
-    loading: false, // Tambahkan loading state di sini
+    loading: false,
+
+    // STATE FORM CUSTOMER
+    customer: {
+      first_name: "",
+      email: "",
+      phone: "",
+    },
 
     // FILTER SEARCH
     get filteredItems() {
       if (!this.searchOpen || this.search.trim() === "") return this.items;
       return this.items.filter((item) =>
         item.name.toLowerCase().includes(this.search.toLowerCase()),
+      );
+    },
+
+    // VALIDASI FORM (Tombol checkout akan memantau ini)
+    get isFormValid() {
+      return (
+        this.customer.first_name.trim() !== "" &&
+        this.customer.email.trim() !== "" &&
+        this.customer.phone.trim() !== "" &&
+        this.customer.email.includes("@") &&
+        this.customer.phone.length >= 10
       );
     },
 
@@ -44,15 +62,6 @@ document.addEventListener("alpine:init", () => {
       });
     },
 
-    // MODAL DETAIL
-    showDetail(item) {
-      this.activeItem = item;
-      this.modalOpen = true;
-      this.$nextTick(() => {
-        if (typeof feather !== "undefined") feather.replace();
-      });
-    },
-
     // FORMAT RUPIAH
     formatIDR(number) {
       return new Intl.NumberFormat("id-ID", {
@@ -62,23 +71,17 @@ document.addEventListener("alpine:init", () => {
       }).format(number);
     },
 
-    // KERANJANG: TAMBAH
+    // KERANJANG LOGIC
     add(newItem) {
       const existing = this.cart.find((item) => item.id === newItem.id);
-
       if (existing) {
         existing.quantity++;
         existing.total = existing.quantity * existing.price;
       } else {
-        this.cart.push({
-          ...newItem,
-          quantity: 1,
-          total: newItem.price,
-        });
+        this.cart.push({ ...newItem, quantity: 1, total: newItem.price });
       }
     },
 
-    // KERANJANG: KURANG/HAPUS
     remove(id) {
       const itemIndex = this.cart.findIndex((item) => item.id === id);
       if (itemIndex === -1) return;
@@ -92,7 +95,6 @@ document.addEventListener("alpine:init", () => {
       }
     },
 
-    // COMPUTED TOTALS
     get total() {
       return this.cart.reduce((sum, item) => sum + item.total, 0);
     },
@@ -101,27 +103,45 @@ document.addEventListener("alpine:init", () => {
       return this.cart.reduce((sum, item) => sum + item.quantity, 0);
     },
 
-    // FUNGSI CHECKOUT (Sudah di dalam objek Alpine)
+    // MODAL DETAIL
+    showDetail(item) {
+      this.activeItem = item;
+      this.modalOpen = true;
+      this.$nextTick(() => {
+        if (typeof feather !== "undefined") feather.replace();
+      });
+    },
+
+    // FUNGSI CHECKOUT YANG BENAR
     async checkout() {
-      if (this.cart.length === 0) return;
+      if (this.cart.length === 0 || !this.isFormValid) return;
 
       this.loading = true;
       try {
-        const response = await fetch("http://localhost:3000/api/checkout", {
+        // 1. Bungkus data ke dalam FormData agar bisa dibaca oleh $_POST di PHP
+        const formData = new FormData();
+        formData.append("total", this.total);
+        formData.append("items", JSON.stringify(this.cart)); // Cart dijadikan string JSON
+        formData.append("name", this.customer.first_name);
+        formData.append("email", this.customer.email);
+        formData.append("phoneNumber", this.customer.phone);
+
+        // 2. Kirim ke file PHP Midtrans kamu
+        const response = await fetch("php/placeOrder.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            total: this.total,
-            items: this.cart,
-          }),
+          body: formData,
         });
 
-        const data = await response.json();
+        // 3. Karena PHP kamu menggunakan 'echo $snapToken', hasilnya adalah text, bukan JSON
+        const token = await response.text();
 
-        window.snap.pay(data.token, {
+        // 4. Panggil pop-up Midtrans
+        window.snap.pay(token, {
           onSuccess: (result) => {
             alert("Pembayaran Berhasil!");
             this.cart = [];
+            // Reset state customer sesuai dengan properti awal
+            this.customer = { first_name: "", email: "", phone: "" };
             this.cartOpen = false;
           },
           onPending: (result) => alert("Menunggu Pembayaran..."),
@@ -130,10 +150,10 @@ document.addEventListener("alpine:init", () => {
         });
       } catch (err) {
         console.error("Gagal melakukan checkout:", err);
-        alert("Terjadi kesalahan sistem.");
+        alert("Terjadi kesalahan sistem saat menghubungi server.");
       } finally {
         this.loading = false;
       }
-    },
-  }));
-});
+    }, // <- penutup fungsi checkout()
+  })); // <- penutup Alpine.data()
+}); // <- penutup document.addEventListener()
