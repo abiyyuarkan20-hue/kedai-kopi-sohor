@@ -821,38 +821,124 @@ footer .credit a {
   html {
     font-size: 65%;
   }
-  #hamburger-menu {
-    display: inline-block;
-  }
-
+  /* --- 1. SETUP CONTAINER & COUNTER --- */
   .navbar .navbar-nav {
-    position: absolute;
-    top: 100%;
-    right: -100%;
-    background-color: #fff;
+    counter-reset: nav-counter; /* Inisialisasi angka 01, 02, dst */
+    position: fixed;
+    top: 0;
+    right: -100%; /* Sembunyi secara default */
+    background-color: #080808;
+    backdrop-filter: blur(15px);
     width: 30rem;
     height: 100vh;
-    transition: 0.5s;
+    transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    padding-top: 10rem;
+    z-index: 999;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .navbar .navbar-nav.active {
-    right: 0;
+    right: 0; /* Muncul saat diklik */
   }
 
+  /* --- 2. LINK STYLE (ULTRA PREMIUM) --- */
   .navbar .navbar-nav a {
-    color: var(--bg);
-    display: block;
-    margin: 1.5rem;
-    padding: 0.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 2.5rem 5rem;
     font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    position: relative;
+    display: flex;
+    align-items: center;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    text-decoration: none;
   }
 
+  /* Garis Bawah Premium */
   .navbar .navbar-nav a::after {
-    transform-origin: 0 0;
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--primary),
+      transparent
+    );
+    transform: scaleX(0);
+    transform-origin: right; /* Keluar ke arah kanan saat mouse pergi */
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  /* --- 3. THE HOVER MAGIC --- */
+
+  /* Efek Blur untuk teman-temannya saat salah satu di-hover */
+  .navbar .navbar-nav:hover a {
+    opacity: 0.2;
+    filter: blur(4px);
+    transform: scale(0.95);
+  }
+
+  /* Style saat link itu sendiri di-hover */
+  .navbar .navbar-nav a:hover {
+    color: var(--white) !important;
+    opacity: 1 !important;
+    filter: blur(0) !important;
+    transform: scale(1.1) translateX(20px) !important;
+    background: linear-gradient(90deg, rgba(193, 159, 86, 0.1), transparent);
+    letter-spacing: 10px; /* Teks meregang */
+  }
+
+  /* Garis meluncur dari kiri */
   .navbar .navbar-nav a:hover::after {
-    transform: scaleX(0.2);
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* Angka indeks ikut bereaksi */
+  .navbar .navbar-nav a:hover::before {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.2);
+    text-shadow: 0 0 10px var(--primary);
+  }
+
+  /* --- 4. ICON EXTRA (SEARCH, CART, HAMBURGER) --- */
+  .navbar .navbar-extra {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .navbar .navbar-extra a,
+  #hamburger-menu {
+    color: rgba(255, 255, 255, 0.6);
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    position: relative;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: 1001; /* Di atas sidebar */
+  }
+
+  .navbar .navbar-extra a:hover,
+  #hamburger-menu:hover {
+    width: 90px; /* Efek memanjang */
+    color: var(--primary);
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.05);
+    box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.3);
   }
 
   .about .row {
