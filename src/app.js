@@ -6,7 +6,7 @@ const SUPABASE_KEY =
 const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.addEventListener("alpine:init", () => {
-  // --- A. GLOBAL AUTH STORE (Agar Tombol Login Berfungsi) ---
+  // --- A. GLOBAL AUTH STORE ---
   Alpine.store("auth", {
     user: JSON.parse(localStorage.getItem("user")) || null,
     loading: false,
@@ -84,7 +84,7 @@ document.addEventListener("alpine:init", () => {
     },
   });
 
-  // --- B. DATA MENU & KERANJANG (Agar Menu Muncul Kembali) ---
+  // --- B. DATA MENU, KERANJANG & MODAL ---
   Alpine.data("menu", () => ({
     items: [
       { id: 1, name: "Sanger Coffee", img: "lima.jpg", price: 30000 },
@@ -114,6 +114,21 @@ document.addEventListener("alpine:init", () => {
       }
     },
 
+    // Fungsi Modal
+    showDetail(item) {
+      this.activeItem = item;
+      this.modalOpen = true;
+      // Refresh ikon feather agar muncul di dalam modal
+      setTimeout(() => {
+        if (typeof feather !== "undefined") feather.replace();
+      }, 10);
+    },
+
+    closeModal() {
+      this.modalOpen = false;
+      this.activeItem = {};
+    },
+
     // Filter untuk fitur search
     get filteredItems() {
       if (this.search.trim() === "") return this.items;
@@ -133,8 +148,14 @@ document.addEventListener("alpine:init", () => {
     add(newItem) {
       const existing = this.cart.find((item) => item.id === newItem.id);
       if (existing) {
-        existing.quantity++;
-        existing.total = existing.quantity * existing.price;
+        this.cart = this.cart.map((item) => {
+          if (item.id !== newItem.id) return item;
+          return {
+            ...item,
+            quantity: item.quantity + 1,
+            total: (item.quantity + 1) * item.price,
+          };
+        });
       } else {
         this.cart.push({ ...newItem, quantity: 1, total: newItem.price });
       }
@@ -144,11 +165,16 @@ document.addEventListener("alpine:init", () => {
       const itemIndex = this.cart.findIndex((item) => item.id === id);
       if (itemIndex !== -1) {
         if (this.cart[itemIndex].quantity > 1) {
-          this.cart[itemIndex].quantity--;
-          this.cart[itemIndex].total =
-            this.cart[itemIndex].price * this.cart[itemIndex].quantity;
+          this.cart = this.cart.map((item) => {
+            if (item.id !== id) return item;
+            return {
+              ...item,
+              quantity: item.quantity - 1,
+              total: (item.quantity - 1) * item.price,
+            };
+          });
         } else {
-          this.cart.splice(itemIndex, 1);
+          this.cart = this.cart.filter((item) => item.id !== id);
         }
       }
     },
@@ -156,23 +182,24 @@ document.addEventListener("alpine:init", () => {
     get total() {
       return this.cart.reduce((sum, item) => sum + item.total, 0);
     },
+
     get quantity() {
       return this.cart.reduce((sum, item) => sum + item.quantity, 0);
     },
 
-    async checkout() {
-      if (this.cart.length === 0) {
-        alert("Keranjang masih kosong!");
-        return;
-      }
+    get isFormValid() {
+      return (
+        this.customer.first_name &&
+        this.customer.email &&
+        this.customer.phone.length >= 10
+      );
+    },
 
-      if (!this.customer.first_name || !this.customer.phone) {
-        alert("Mohon isi nama dan nomor telepon di formulir keranjang!");
-        return;
-      }
+    async checkout() {
+      if (this.cart.length === 0) return alert("Keranjang masih kosong!");
+      if (!this.isFormValid) return alert("Mohon lengkapi data pengiriman!");
 
       this.loading = true;
-
       try {
         const formData = new FormData();
         formData.append("total", this.total);
@@ -186,36 +213,33 @@ document.addEventListener("alpine:init", () => {
           body: formData,
         });
 
-        if (!response.ok) throw new Error("Gagal menghubungi server (PHP)");
-
+        if (!response.ok) throw new Error("Gagal menghubungi server");
         const token = await response.text();
 
         if (window.snap) {
           window.snap.pay(token, {
-            onSuccess: (result) => {
+            onSuccess: () => {
               alert("Pembayaran Berhasil!");
               this.cart = [];
               this.cartOpen = false;
             },
-            onPending: (result) => alert("Menunggu pembayaran..."),
-            onError: (result) => alert("Pembayaran gagal!"),
-            onClose: () =>
-              alert("Anda menutup jendela pembayaran sebelum selesai."),
+            onPending: () => alert("Menunggu pembayaran..."),
+            onError: () => alert("Pembayaran gagal!"),
+            onClose: () => alert("Jendela pembayaran ditutup."),
           });
         } else {
-          throw new Error("Midtrans Snap.js belum dimuat!");
+          throw new Error("Midtrans Snap belum dimuat!");
         }
       } catch (err) {
-        console.error("Checkout Error:", err);
-        alert("Terjadi kesalahan: " + err.message);
+        alert("Kesalahan: " + err.message);
       } finally {
         this.loading = false;
       }
-    }, // <-- Penutup fungsi checkout
-  })); // <-- Penutup Alpine.data("menu")
+    },
+  }));
 });
 
-// 3. Efek Mouse (Tetap di luar alpine:init)
+// 3. Efek Mouse (Tetap di luar)
 document.addEventListener("mousemove", (e) => {
   const glow = document.getElementById("mouse-glow");
   if (glow) {
