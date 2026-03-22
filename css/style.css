@@ -159,11 +159,38 @@ body {
   background-color: var(--primary);
   color: #000;
   font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  position: absolute;
+  top: -5px; /* Geser sedikit ke atas luar border */
+  right: -5px; /* Geser sedikit ke kanan luar border */
+  line-height: 1;
+  z-index: 10; /* Pastikan di atas ikon */
+  border: 2px solid var(--bg); /* Tambahkan border agar kontras dengan ikon */
+  transition: 0.3s;
+}
+
+/* Pastikan saat di-hover (memanjang), badge tidak ikut lari terlalu jauh */
+.navbar .navbar-extra a .quantity-badge {
+  background-color: var(--primary);
+  color: #000;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  position: absolute;
+  top: -5px; /* Geser sedikit ke atas luar border */
+  right: -5px; /* Geser sedikit ke kanan luar border */
+  line-height: 1;
+  z-index: 10; /* Pastikan di atas ikon */
+  border: 2px solid var(--bg); /* Tambahkan border agar kontras dengan ikon */
   transition: 0.3s;
 }
 
 .navbar .navbar-extra a:hover .quantity-badge {
-  transform: scale(1.2) translateX(5px); /* Badge bergeser sedikit saat memanjang */
+  transform: scale(1.2);
+  right: 5px; /* Sesuaikan posisi saat tombol memanjang */
 }
 
 #hamburger-menu {
@@ -914,7 +941,7 @@ footer .credit a {
   .navbar .navbar-extra {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
   }
 
   .navbar .navbar-extra a,
@@ -923,13 +950,15 @@ footer .credit a {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     position: relative;
     border-radius: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     z-index: 1001; /* Di atas sidebar */
+    overflow: visible !important;
+    text-decoration: none;
   }
 
   .navbar .navbar-extra a:hover,
