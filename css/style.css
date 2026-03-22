@@ -95,7 +95,7 @@ body {
 
 /* Base Ikon */
 .navbar .navbar-extra a {
-  color: rgba(255, 255, 255, 0.6); /* Warna agak pudar di awal */
+  color: rgba(255, 255, 255, 0.6);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -105,32 +105,51 @@ body {
   border-radius: 15px;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); /* Animasi super smooth */
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   text-decoration: none;
   overflow: hidden;
+}
+
+/* KHUSUS: Link Avatar User agar gambar tetap proporsional */
+.navbar .navbar-extra a.user-avatar-link img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--primary);
+  transition: 0.5s ease;
 }
 
 /* Efek saat AREA Navigasi disentuh (Ikon lain mengecil) */
 .navbar .navbar-extra:hover a {
   transform: scale(0.8);
-  filter: blur(1px); /* Efek kedalaman: ikon lain jadi agak blur */
+  filter: blur(1px);
   opacity: 0.4;
 }
 
 /* Efek Spesifik saat SATU Ikon di-Hover (Ikon Utama) */
 .navbar .navbar-extra a:hover {
-  width: 90px; /* Memanjang lebih dramatis */
+  width: 90px; /* Memanjang dramatis */
   color: var(--primary);
-  transform: scale(1.15); /* Membesar sedikit */
-  filter: blur(0); /* Tajam kembali */
+  transform: scale(1.15);
+  filter: blur(0);
   opacity: 1;
-  background: rgba(var(--primary-rgb), 0.05);
+  background: rgba(
+    182,
+    137,
+    91,
+    0.1
+  ); /* Menggunakan alpha dari warna primary */
   border-color: var(--primary);
-
-  /* Double Glow: Luar dan Dalam */
   box-shadow:
-    0 0 20px rgba(var(--primary-rgb), 0.4),
-    inset 0 0 10px rgba(var(--primary-rgb), 0.2);
+    0 0 20px rgba(182, 137, 91, 0.4),
+    inset 0 0 10px rgba(182, 137, 91, 0.2);
+}
+
+/* Jika yang di-hover adalah avatar, gambar ikut membesar sedikit */
+.navbar .navbar-extra a.user-avatar-link:hover img {
+  transform: scale(1.2);
+  border-color: #fff;
 }
 
 /* Cahaya Berjalan (Shine Effect) pada Border */
@@ -163,28 +182,11 @@ body {
   border-radius: 50%;
   font-size: 0.8rem;
   position: absolute;
-  top: -5px; /* Geser sedikit ke atas luar border */
-  right: -5px; /* Geser sedikit ke kanan luar border */
+  top: -5px;
+  right: -5px;
   line-height: 1;
-  z-index: 10; /* Pastikan di atas ikon */
-  border: 2px solid var(--bg); /* Tambahkan border agar kontras dengan ikon */
-  transition: 0.3s;
-}
-
-/* Pastikan saat di-hover (memanjang), badge tidak ikut lari terlalu jauh */
-.navbar .navbar-extra a .quantity-badge {
-  background-color: var(--primary);
-  color: #000;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 50%;
-  font-size: 0.8rem;
-  position: absolute;
-  top: -5px; /* Geser sedikit ke atas luar border */
-  right: -5px; /* Geser sedikit ke kanan luar border */
-  line-height: 1;
-  z-index: 10; /* Pastikan di atas ikon */
-  border: 2px solid var(--bg); /* Tambahkan border agar kontras dengan ikon */
+  z-index: 10;
+  border: 2px solid var(--bg);
   transition: 0.3s;
 }
 

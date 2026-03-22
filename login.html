@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sohor Kopi | Premium Access</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/login.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+
+    <script src="src/auth.js"></script>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <script>
+      // Pindahkan pemanggilan feather ke sini agar aman
+      document.addEventListener("DOMContentLoaded", () => {
+        if (typeof feather !== "undefined") feather.replace();
+      });
+    </script>
+
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+      /* Tambahan agar tombol Google rapi */
+      #google-login-button {
+        min-height: 40px;
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+
+  <body x-data="$store.auth" x-cloak>
+    <div class="bg-decoration">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="glow glow-3"></div>
+    </div>
+
+    <main class="login-container">
+      <div class="auth-card">
+        <div class="logo-wrapper">
+          <div class="logo-icon">☕</div>
+          <h1>Sohor<span>Kopi</span></h1>
+          <p class="subtitle">Experience the finest brew</p>
+        </div>
+
+        <div class="content-fade" x-show="!user">
+          <div class="tab-control">
+            <button
+              @click="isRegister = false"
+              :class="!isRegister ? 'active' : ''"
+            >
+              Login
+            </button>
+            <button
+              @click="isRegister = true"
+              :class="isRegister ? 'active' : ''"
+            >
+              Register
+            </button>
+          </div>
+
+          <form @submit.prevent="handleEmailAuth" class="auth-form">
+            <template x-if="isRegister">
+              <div class="input-group fade-in">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  x-model="formData.name"
+                  placeholder="John Doe"
+                  :required="isRegister"
+                />
+              </div>
+            </template>
+
+            <div class="input-group">
+              <label>Email Address</label>
+              <input
+                type="email"
+                x-model="formData.email"
+                placeholder="name@example.com"
+                required
+              />
+            </div>
+
+            <div class="input-group">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <label>Password</label>
+                <a
+                  href="javascript:void(0)"
+                  @click="forgotPassword()"
+                  style="
+                    font-size: 0.8rem;
+                    color: #b6895b;
+                    text-decoration: none;
+                  "
+                >
+                  Forgot Password?
+                </a>
+              </div>
+              <input
+                type="password"
+                x-model="formData.password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <button type="submit" class="btn-primary" :disabled="loading">
+              <span
+                x-show="!loading"
+                x-text="isRegister ? 'Create Account' : 'Sign In'"
+              ></span>
+              <span x-show="loading">Processing...</span>
+            </button>
+          </form>
+
+          <div class="divider">
+            <span>Or continue with</span>
+          </div>
+
+          <div class="oauth-group">
+            <div id="google-login-button"></div>
+
+            <button @click="loginWithGithub" class="btn-github">
+              <i data-feather="github"></i>
+              <span>Continue with GitHub</span>
+            </button>
+          </div>
+
+          <p class="footer-text">Secure access to your premium membership.</p>
+        </div>
+
+        <template x-if="user">
+          <div class="user-profile fade-in">
+            <div class="profile-header-premium">
+              <div class="avatar-ring">
+                <img
+                  :src="user.picture || 'https://ui-avatars.com/api/?name=' + user.name + '&background=d4a373&color=fff'"
+                  class="user-avatar"
+                  alt="Profile"
+                />
+              </div>
+              <div class="user-info-text">
+                <h3 x-text="user.name"></h3>
+                <p x-text="user.email"></p>
+              </div>
+            </div>
+
+            <div class="profile-actions">
+              <a href="index.html" class="btn-primary">
+                <i data-feather="shopping-bag"></i>
+                <span>Go to Shop</span>
+              </a>
+              <button @click="logout" class="btn-logout-premium">
+                <i data-feather="log-out"></i>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </main>
+
+    <script>
+      // Pastikan feather icons ter-render
+      window.onload = () => {
+        feather.replace();
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,571 @@
+/* --- Global Variables & Reset --- */
+:root {
+  /* Palette: Champagne & Deep Obsidian */
+  --primary: #d4a373;
+  --primary-light: #e6ccb2;
+  --primary-dark: #bc8a5f;
+  --primary-glow: rgba(212, 163, 115, 0.25);
+
+  --bg-dark: #080707;
+  --card-bg: rgba(20, 18, 17, 0.65);
+  --input-bg: rgba(255, 255, 255, 0.03);
+
+  --text-main: #f8f1e7;
+  --text-muted: #a8a29e;
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  /* PERUBAHAN DI SINI */
+  min-height: 100vh;
+  display: flex;
+  align-items: center; /* Tetap di tengah jika konten sedikit */
+  justify-content: center;
+  overflow-y: auto; /* Izinkan scroll vertikal */
+  overflow-x: hidden; /* Cegah scroll horizontal */
+  position: relative;
+  padding: 40px 0; /* Beri jarak atas bawah agar kartu tidak menempel layar saat di-scroll */
+}
+
+.bg-decoration {
+  position: fixed; /* Berubah dari absolute ke fixed */
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(circle at center, #151311 0%, #080707 100%);
+}
+
+/* Grainy Texture Overlay */
+.bg-decoration::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  animation: pulse 8s infinite alternate ease-in-out;
+}
+
+.glow-1 {
+  width: 500px;
+  height: 500px;
+  background: var(--primary);
+  top: -15%;
+  left: -10%;
+}
+.glow-2 {
+  width: 400px;
+  height: 400px;
+  background: #573c26;
+  bottom: -10%;
+  right: -5%;
+  animation-delay: -2s;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.15;
+  }
+  to {
+    transform: scale(1.1) translate(20px, 20px);
+    opacity: 0.25;
+  }
+}
+
+/* --- Auth Card Architecture --- */
+.login-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 800px;
+  padding: 40px;
+}
+
+.auth-card {
+  position: relative;
+  width: 100%;
+  background: var(--card-bg);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  padding: 40px;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  transition: var(--transition-smooth);
+}
+
+.auth-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(212, 163, 115, 0.3);
+  box-shadow:
+    0 40px 80px -15px rgba(0, 0, 0, 0.6),
+    0 0 20px var(--primary-glow);
+}
+
+/* --- Branding --- */
+.logo-wrapper {
+  margin-bottom: 35px;
+  text-align: center;
+}
+
+.logo-icon {
+  font-size: 3.5rem;
+  display: inline-block;
+  margin-bottom: 10px;
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 5px 15px var(--primary-glow));
+}
+
+.logo-wrapper h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* --- Advanced Tab Control --- */
+.tab-control {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 5px;
+  border-radius: 18px;
+  margin-bottom: 30px;
+  border: 1px solid var(--glass-border);
+}
+
+.tab-control button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  border-radius: 14px;
+}
+
+.tab-control button.active {
+  background: var(--primary);
+  color: #1a1510;
+  box-shadow: 0 4px 15px rgba(212, 163, 115, 0.3);
+}
+
+/* --- Form Elements --- */
+.input-group {
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+  margin-left: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  color: white !important;
+  font-size: 1rem;
+  transition: var(--transition-smooth);
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(212, 163, 115, 0.05) !important;
+  box-shadow: 0 0 0 4px var(--primary-glow);
+  transform: scale(1.01);
+}
+
+/* Luxury Button Effect */
+.btn-primary {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: none;
+  border-radius: 16px;
+  color: #1a1510 !important;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40px;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(35deg);
+  transition: 0.7s;
+}
+
+.btn-primary:hover::after {
+  left: 120%;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(212, 163, 115, 0.4);
+  filter: brightness(1.1);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 25px 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.divider span {
+  padding: 0 15px;
+}
+
+/* --- Ultra-Premium Google Login Container --- */
+#google-login-button {
+  width: 100%;
+  height: 54px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Efek Glassmorphism Putih yang Mewah */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  transition: var(--transition-smooth);
+
+  /* Border tipis yang memberikan kesan tajam */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  margin-top: 0.5rem;
+
+  /* Shadow yang lebih dalam (Depth) */
+  box-shadow:
+    0 10px 20px -5px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 1);
+}
+
+#google-login-button:hover {
+  transform: translateY(-4px) scale(1.01);
+  background: #ffffff;
+  box-shadow:
+    0 20px 30px -10px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Mengatur Iframe Google agar presisi di tengah */
+#google-login-button iframe {
+  transform: scale(1.05); /* Sedikit diperbesar agar pas */
+  filter: contrast(1.05);
+  transition: var(--transition-smooth);
+}
+
+#google-login-button:hover iframe {
+  filter: contrast(1.1);
+}
+
+/* Efek cahaya lewat (Shine Effect) pada hover */
+#google-login-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: 0.7s;
+}
+
+#google-login-button:hover::before {
+  left: 125%;
+}
+
+/* --- Penyeimbang Jarak OAuth --- */
+.oauth-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Jarak antar tombol sosial yang lebih lega */
+  margin-top: 1.5rem;
+}
+
+/* --- Premium GitHub Login Button --- */
+.btn-github {
+  width: 100%;
+  height: 54px; /* Samakan tinggi dengan tombol Google & Primary */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  /* Gradasi Gelap yang Dalam */
+  background: linear-gradient(135deg, #24292e 0%, #0d1117 100%);
+  color: #ffffff;
+
+  /* Border & Radius Luxury */
+  border: 1px solid var(--glass-border);
+  border-radius: 16px; /* Samakan dengan desain kartu & input */
+
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+
+  /* Shadow Depth */
+  box-shadow:
+    0 10px 20px -5px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.btn-github:hover {
+  background: #1b1f23;
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 20px 30px -10px rgba(0, 0, 0, 0.6),
+    0 0 15px rgba(255, 255, 255, 0.05);
+}
+
+/* Efek Cahaya Lewat (Shine Effect) */
+.btn-github::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: 0.7s;
+}
+
+.btn-github:hover::before {
+  left: 125%;
+}
+
+/* Styling Ikon Feather GitHub */
+.btn-github i,
+.btn-github svg {
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+  transition: var(--transition-smooth);
+}
+
+.btn-github:hover i {
+  transform: rotate(-10deg) scale(1.1);
+}
+
+/* --- User Profile Premium Styling --- */
+.user-profile {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.profile-header-premium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+}
+
+.avatar-ring {
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 8px 20px var(--primary-glow);
+}
+
+.user-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--bg-dark);
+}
+
+.user-info-text h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.user-info-text p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Override btn-primary untuk link agar teks center */
+.profile-actions .btn-primary {
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.btn-logout-premium {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-radius: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-logout-premium:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: #ef4444;
+  transform: translateY(-2px);
+}
+
+/* --- Custom Autofill Fix --- */
+input:-webkit-autofill {
+  -webkit-text-fill-color: white !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1a1510 inset !important;
+}
+
+/* --- Animations --- */
+.fade-in {
+  animation: reveal 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.footer-text {
+  text-align: center;
+  margin-top: 2rem;
+}
+@media (max-width: 480px) {
+  body {
+    padding: 20px 0; /* Padding lebih kecil di mobile */
+    align-items: flex-start; /* Mulai dari atas agar tidak terpotong */
+  }
+
+  .login-container {
+    padding: 15px;
+  }
+
+  .auth-card {
+    padding: 25px 20px;
+    border-radius: 20px;
+  }
+
+  .logo-icon {
+    font-size: 2.5rem;
+  }
+
+  .logo-wrapper h1 {
+    font-size: 1.8rem;
+  }
+}

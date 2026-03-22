@@ -1,6 +1,91 @@
+// 1. Inisialisasi Supabase (Paling Atas)
+const SUPABASE_URL = "https://oedjjfbfndfvqkrdqepm.supabase.co".trim();
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lZGpqZmJmbmRmdnFrcmRxZXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxOTA2NTIsImV4cCI6MjA4OTc2NjY1Mn0.iToPibvOYgJC6vvThHUQn2zYzqzIMEoXjYXwbpT6kX4".trim();
+
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 document.addEventListener("alpine:init", () => {
+  // --- A. GLOBAL AUTH STORE (Agar Tombol Login Berfungsi) ---
+  Alpine.store("auth", {
+    user: JSON.parse(localStorage.getItem("user")) || null,
+    loading: false,
+    isRegister: false,
+    formData: { name: "", email: "", password: "" },
+
+    init() {
+      this.checkSession();
+    },
+
+    async checkSession() {
+      try {
+        const {
+          data: { session },
+        } = await sbClient.auth.getSession();
+        if (session?.user) {
+          this.saveUserData(session.user);
+        } else {
+          this.user = null;
+          localStorage.removeItem("user");
+        }
+      } catch (e) {
+        console.warn("Session check failed", e);
+      }
+    },
+
+    async handleEmailAuth() {
+      this.loading = true;
+      try {
+        if (this.isRegister) {
+          const { error } = await sbClient.auth.signUp({
+            email: this.formData.email,
+            password: this.formData.password,
+            options: { data: { full_name: this.formData.name } },
+          });
+          if (error) throw error;
+          alert("Registrasi berhasil! Cek email konfirmasi.");
+          this.isRegister = false;
+        } else {
+          const { data, error } = await sbClient.auth.signInWithPassword({
+            email: this.formData.email,
+            password: this.formData.password,
+          });
+          if (error) throw error;
+          if (data.user) {
+            this.saveUserData(data.user);
+            window.location.href = "index.html";
+          }
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    saveUserData(user) {
+      const userData = {
+        name:
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          user.email.split("@")[0],
+        email: user.email,
+        picture: user.user_metadata?.avatar_url || null,
+      };
+      localStorage.setItem("user", JSON.stringify(userData));
+      this.user = userData;
+    },
+
+    async logout() {
+      await sbClient.auth.signOut();
+      localStorage.removeItem("user");
+      this.user = null;
+      window.location.href = "login.html";
+    },
+  });
+
+  // --- B. DATA MENU & KERANJANG (Agar Menu Muncul Kembali) ---
   Alpine.data("menu", () => ({
-    // DATA MENU
     items: [
       { id: 1, name: "Sanger Coffee", img: "lima.jpg", price: 30000 },
       { id: 2, name: "Coffee Latte", img: "dua.jpg", price: 14000 },
@@ -11,8 +96,6 @@ document.addEventListener("alpine:init", () => {
       { id: 7, name: "Kopi Susu", img: "tujuh.jpg", price: 15000 },
       { id: 8, name: "Cappucinno", img: "delapan.jpg", price: 13000 },
     ],
-
-    // STATE & UI
     search: "",
     searchOpen: false,
     cart: [],
@@ -20,49 +103,25 @@ document.addEventListener("alpine:init", () => {
     modalOpen: false,
     activeItem: {},
     loading: false,
+    customer: { first_name: "", email: "", phone: "" },
 
-    // STATE FORM CUSTOMER
-    customer: {
-      first_name: "",
-      email: "",
-      phone: "",
+    init() {
+      // Sinkronkan data customer dengan user yang sedang login
+      const savedUser = JSON.parse(localStorage.getItem("user"));
+      if (savedUser) {
+        this.customer.first_name = savedUser.name;
+        this.customer.email = savedUser.email;
+      }
     },
 
-    // FILTER SEARCH
+    // Filter untuk fitur search
     get filteredItems() {
-      if (!this.searchOpen || this.search.trim() === "") return this.items;
+      if (this.search.trim() === "") return this.items;
       return this.items.filter((item) =>
         item.name.toLowerCase().includes(this.search.toLowerCase()),
       );
     },
 
-    // VALIDASI FORM (Tombol checkout akan memantau ini)
-    get isFormValid() {
-      return (
-        this.customer.first_name.trim() !== "" &&
-        this.customer.email.trim() !== "" &&
-        this.customer.phone.trim() !== "" &&
-        this.customer.email.includes("@") &&
-        this.customer.phone.length >= 10
-      );
-    },
-
-    // INIT
-    init() {
-      this.$watch("search", (value) => {
-        if (value.trim() !== "") {
-          const menuSection = document.getElementById("menu");
-          if (menuSection) {
-            menuSection.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-        }
-        this.$nextTick(() => {
-          if (typeof feather !== "undefined") feather.replace();
-        });
-      });
-    },
-
-    // FORMAT RUPIAH
     formatIDR(number) {
       return new Intl.NumberFormat("id-ID", {
         style: "currency",
@@ -71,7 +130,6 @@ document.addEventListener("alpine:init", () => {
       }).format(number);
     },
 
-    // KERANJANG LOGIC
     add(newItem) {
       const existing = this.cart.find((item) => item.id === newItem.id);
       if (existing) {
@@ -84,76 +142,84 @@ document.addEventListener("alpine:init", () => {
 
     remove(id) {
       const itemIndex = this.cart.findIndex((item) => item.id === id);
-      if (itemIndex === -1) return;
-
-      if (this.cart[itemIndex].quantity > 1) {
-        this.cart[itemIndex].quantity--;
-        this.cart[itemIndex].total =
-          this.cart[itemIndex].price * this.cart[itemIndex].quantity;
-      } else {
-        this.cart.splice(itemIndex, 1);
+      if (itemIndex !== -1) {
+        if (this.cart[itemIndex].quantity > 1) {
+          this.cart[itemIndex].quantity--;
+          this.cart[itemIndex].total =
+            this.cart[itemIndex].price * this.cart[itemIndex].quantity;
+        } else {
+          this.cart.splice(itemIndex, 1);
+        }
       }
     },
 
     get total() {
       return this.cart.reduce((sum, item) => sum + item.total, 0);
     },
-
     get quantity() {
       return this.cart.reduce((sum, item) => sum + item.quantity, 0);
     },
 
-    // MODAL DETAIL
-    showDetail(item) {
-      this.activeItem = item;
-      this.modalOpen = true;
-      this.$nextTick(() => {
-        if (typeof feather !== "undefined") feather.replace();
-      });
-    },
-
-    // FUNGSI CHECKOUT YANG BENAR
     async checkout() {
-      if (this.cart.length === 0 || !this.isFormValid) return;
+      if (this.cart.length === 0) {
+        alert("Keranjang masih kosong!");
+        return;
+      }
+
+      if (!this.customer.first_name || !this.customer.phone) {
+        alert("Mohon isi nama dan nomor telepon di formulir keranjang!");
+        return;
+      }
 
       this.loading = true;
+
       try {
-        // 1. Bungkus data ke dalam FormData agar bisa dibaca oleh $_POST di PHP
         const formData = new FormData();
         formData.append("total", this.total);
-        formData.append("items", JSON.stringify(this.cart)); // Cart dijadikan string JSON
+        formData.append("items", JSON.stringify(this.cart));
         formData.append("name", this.customer.first_name);
         formData.append("email", this.customer.email);
         formData.append("phoneNumber", this.customer.phone);
 
-        // 2. Kirim ke file PHP Midtrans kamu
         const response = await fetch("php/placeOrder.php", {
           method: "POST",
           body: formData,
         });
 
-        // 3. Karena PHP kamu menggunakan 'echo $snapToken', hasilnya adalah text, bukan JSON
+        if (!response.ok) throw new Error("Gagal menghubungi server (PHP)");
+
         const token = await response.text();
 
-        // 4. Panggil pop-up Midtrans
-        window.snap.pay(token, {
-          onSuccess: (result) => {
-            alert("Pembayaran Berhasil!");
-            this.cart = [];
-            // Reset state customer sesuai dengan properti awal
-            this.customer = { first_name: "", email: "", phone: "" };
-            this.cartOpen = false;
-          },
-          onPending: (result) => alert("Menunggu Pembayaran..."),
-          onError: (result) => alert("Pembayaran Gagal!"),
-          onClose: () => alert("Anda menutup jendela pembayaran"),
-        });
+        if (window.snap) {
+          window.snap.pay(token, {
+            onSuccess: (result) => {
+              alert("Pembayaran Berhasil!");
+              this.cart = [];
+              this.cartOpen = false;
+            },
+            onPending: (result) => alert("Menunggu pembayaran..."),
+            onError: (result) => alert("Pembayaran gagal!"),
+            onClose: () =>
+              alert("Anda menutup jendela pembayaran sebelum selesai."),
+          });
+        } else {
+          throw new Error("Midtrans Snap.js belum dimuat!");
+        }
       } catch (err) {
-        console.error("Gagal melakukan checkout:", err);
-        alert("Terjadi kesalahan sistem saat menghubungi server.");
+        console.error("Checkout Error:", err);
+        alert("Terjadi kesalahan: " + err.message);
       } finally {
         this.loading = false;
       }
-    }, // <- penutup fungsi checkout()
-  })); // <- penutup Alpine.data()
-}); // <- penutup document.addEventListener()
+    }, // <-- Penutup fungsi checkout
+  })); // <-- Penutup Alpine.data("menu")
+});
+
+// 3. Efek Mouse (Tetap di luar alpine:init)
+document.addEventListener("mousemove", (e) => {
+  const glow = document.getElementById("mouse-glow");
+  if (glow) {
+    glow.style.left = `${e.clientX}px`;
+    glow.style.top = `${e.clientY}px`;
+  }
+});
