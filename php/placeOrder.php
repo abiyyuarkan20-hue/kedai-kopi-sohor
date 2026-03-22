@@ -1,6 +1,5 @@
 <?php
 // Sesuaikan path ini! Pastikan folder 'midtrans-php-master' ada di folder yang sama dengan file php ini
-require_once dirname(__FILE__) . '/config.php';
 require_once dirname(__FILE__) . '/midtrans-php-master/Midtrans.php';
 
 \Midtrans\Config::$serverKey = 'Mid-server-r3KjRyre0accECubfgb_bToF';
