@@ -236,39 +236,42 @@ body {
   padding: 1rem;
 }
 
-/*Shopping Cart*/
+/* --- Shopping Cart Container --- */
 .shopping-cart {
   position: absolute;
-  top: 100%; /* Menempel tepat di bawah navbar */
+  top: 100%;
   right: -100%;
   width: 35rem;
-  height: calc(100vh - 100%); /* Tinggi sisa layar setelah navbar */
+  height: calc(100vh - 100%);
   background-color: #fff;
   padding: 1.5rem;
   transition: 0.4s ease-in-out;
-  z-index: 998; /* Di bawah navbar (999) tapi di atas konten lain */
+  z-index: 998;
   color: var(--bg);
   box-shadow: -5px 5px 15px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
-  border-left: 1px solid var(--extra);
+  border-left: 1px solid var(--primary);
 }
+
 .shopping-cart.active {
   right: 0;
 }
 
+/* --- Cart Items --- */
 .shopping-cart .cart-item {
-  margin: 1.5rem 0;
+  margin: 1rem 0;
   display: flex;
   align-items: center;
   gap: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px dashed #666;
+  border-bottom: 1px dashed #ccc;
+  position: relative;
 }
 
 .shopping-cart .cart-item img {
   height: 6rem;
   width: 6rem;
-  border-radius: 10px; /* Ubah ke kotak tumpul agar gambar menu lebih jelas */
+  border-radius: 8px;
   object-fit: cover;
 }
 
@@ -276,6 +279,7 @@ body {
   color: var(--bg);
   font-size: 1.4rem;
   margin-bottom: 0.5rem;
+  text-transform: capitalize;
 }
 
 .shopping-cart .item-price {
@@ -286,70 +290,95 @@ body {
   gap: 1rem;
 }
 
-.shopping-cart .cart-item .remove-item {
-  color: var(--bg);
-  position: absolute;
-  right: 3rem;
-  height: 30px;
-  width: 30px;
-  cursor: pointer;
-}
-
+/* --- Quantity Buttons Inside Price --- */
 .shopping-cart .item-price button {
   background-color: var(--primary);
   color: #fff;
   border: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px; /* Kotak sedikit tumpul lebih modern */
   cursor: pointer;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: 0.2s;
 }
 
 .shopping-cart .item-price button:hover {
   background-color: var(--bg);
 }
 
-.shopping-cart .cart-item .remove-item:hover {
-  color: var(--primary);
-  transition: 0.2s;
-}
-
-/* Total Section */
-.shopping-cart .cart-total {
+/* --- Footer & Checkout Section --- */
+.cart-footer {
   margin-top: 2rem;
-  padding-top: 1rem;
+  padding: 1.5rem 0;
   border-top: 2px solid var(--bg);
-  text-align: right;
 }
 
-.shopping-cart .cart-total h4 {
-  font-size: 1.6rem;
+.total-container {
   margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.shopping-cart .checkout-btn {
+.total-container h4 {
+  font-size: 1.4rem;
+  color: var(--bg);
+  text-transform: uppercase;
+}
+
+.total-container span {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.6rem;
+}
+
+.checkout-btn {
   display: block;
   width: 100%;
   background-color: var(--primary);
   color: #fff;
-  text-align: center;
   padding: 1.2rem;
-  border-radius: 5px;
-  font-size: 1.4rem;
+  border-radius: 8px;
   font-weight: bold;
-  text-decoration: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  border: none;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.shopping-cart .checkout-btn:hover {
-  background-color: var(--bg);
+.checkout-btn:hover {
+  background-color: #d17a25; /* Warna cokelat lebih gelap */
+  transform: translateY(-2px);
 }
 
+.checkout-btn:active {
+  transform: translateY(0);
+}
+
+.checkout-btn:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- Utility --- */
 #shop-cart {
   position: relative;
+}
+
+/* Scrollbar Styling untuk Chrome/Edge */
+.shopping-cart::-webkit-scrollbar {
+  width: 6px;
+}
+.shopping-cart::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 10px;
 }
 
 .quantity-badge {

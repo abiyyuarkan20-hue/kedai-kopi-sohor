@@ -12,14 +12,18 @@ document.addEventListener("alpine:init", () => {
       { id: 8, name: "Cappucinno", img: "delapan.jpg", price: 13000 },
     ],
 
-    // SEARCH
+    // STATE & UI
     search: "",
     searchOpen: false,
+    cart: [],
+    cartOpen: false,
+    modalOpen: false,
+    activeItem: {},
+    loading: false, // Tambahkan loading state di sini
 
+    // FILTER SEARCH
     get filteredItems() {
-      if (!this.searchOpen) return this.items;
-      if (this.search.trim() === "") return this.items;
-
+      if (!this.searchOpen || this.search.trim() === "") return this.items;
       return this.items.filter((item) =>
         item.name.toLowerCase().includes(this.search.toLowerCase()),
       );
@@ -30,33 +34,20 @@ document.addEventListener("alpine:init", () => {
       this.$watch("search", (value) => {
         if (value.trim() !== "") {
           const menuSection = document.getElementById("menu");
-
           if (menuSection) {
-            menuSection.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            });
+            menuSection.scrollIntoView({ behavior: "smooth", block: "start" });
           }
         }
-
         this.$nextTick(() => {
           if (typeof feather !== "undefined") feather.replace();
         });
       });
     },
 
-    // CART
-    cart: [],
-    cartOpen: false,
-
-    // MODAL
-    modalOpen: false,
-    activeItem: {},
-
+    // MODAL DETAIL
     showDetail(item) {
       this.activeItem = item;
       this.modalOpen = true;
-
       this.$nextTick(() => {
         if (typeof feather !== "undefined") feather.replace();
       });
@@ -71,7 +62,7 @@ document.addEventListener("alpine:init", () => {
       }).format(number);
     },
 
-    // ADD TO CART
+    // KERANJANG: TAMBAH
     add(newItem) {
       const existing = this.cart.find((item) => item.id === newItem.id);
 
@@ -87,27 +78,62 @@ document.addEventListener("alpine:init", () => {
       }
     },
 
-    // REMOVE CART
+    // KERANJANG: KURANG/HAPUS
     remove(id) {
-      const item = this.cart.find((item) => item.id === id);
-      if (!item) return;
+      const itemIndex = this.cart.findIndex((item) => item.id === id);
+      if (itemIndex === -1) return;
 
-      if (item.quantity > 1) {
-        item.quantity--;
-        item.total = item.price * item.quantity;
+      if (this.cart[itemIndex].quantity > 1) {
+        this.cart[itemIndex].quantity--;
+        this.cart[itemIndex].total =
+          this.cart[itemIndex].price * this.cart[itemIndex].quantity;
       } else {
-        this.cart = this.cart.filter((item) => item.id !== id);
+        this.cart.splice(itemIndex, 1);
       }
     },
 
-    // TOTAL HARGA
+    // COMPUTED TOTALS
     get total() {
       return this.cart.reduce((sum, item) => sum + item.total, 0);
     },
 
-    // TOTAL ITEM
     get quantity() {
       return this.cart.reduce((sum, item) => sum + item.quantity, 0);
+    },
+
+    // FUNGSI CHECKOUT (Sudah di dalam objek Alpine)
+    async checkout() {
+      if (this.cart.length === 0) return;
+
+      this.loading = true;
+      try {
+        const response = await fetch("http://localhost:3000/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            total: this.total,
+            items: this.cart,
+          }),
+        });
+
+        const data = await response.json();
+
+        window.snap.pay(data.token, {
+          onSuccess: (result) => {
+            alert("Pembayaran Berhasil!");
+            this.cart = [];
+            this.cartOpen = false;
+          },
+          onPending: (result) => alert("Menunggu Pembayaran..."),
+          onError: (result) => alert("Pembayaran Gagal!"),
+          onClose: () => alert("Anda menutup jendela pembayaran"),
+        });
+      } catch (err) {
+        console.error("Gagal melakukan checkout:", err);
+        alert("Terjadi kesalahan sistem.");
+      } finally {
+        this.loading = false;
+      }
     },
   }));
 });

@@ -24,6 +24,11 @@
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
     <script src="src/app.js"></script>
+    <script
+      type="text/javascript"
+      src="https://app.sandbox.midtrans.com/snap/snap.js"
+      data-client-key="YOUR_CLIENT_KEY_SANA"
+    ></script>
   </head>
   <body x-data="menu">
     <nav class="navbar">
@@ -82,9 +87,16 @@
           </div>
         </template>
 
-        <h4 x-show="cart.length" style="margin-top: 1rem">
-          Total: <span x-text="formatIDR(total)"></span>
-        </h4>
+        <div x-show="cart.length > 0" class="cart-footer">
+          <div class="total-container">
+            <h4>Total: <span x-text="formatIDR(total)"></span></h4>
+          </div>
+
+          <button class="checkout-btn" @click="checkout()" :disabled="loading">
+            <span x-show="!loading">Checkout Sekarang</span>
+            <span x-show="loading">Mohon Tunggu...</span>
+          </button>
+        </div>
       </div>
 
       <div
