@@ -7,23 +7,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;700&display=swap"
       rel="stylesheet"
     />
     <link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-/>
-    <!--icons-->
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
     <script src="https://unpkg.com/feather-icons"></script>
-    <!--Fonts Style-->
+
     <link rel="stylesheet" href="css/style.css" />
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script src="src/app.js"></script>
   </head>
-  <body>
-    <!--navbar start-->
+  <body x-data="menu">
     <nav class="navbar">
       <a href="#" class="navbar-logo">
-        <img src="logo.jpg" alt="Sohor Coffee Logo" />
+        <img src="img/logo.jpg" alt="Sohor Coffee Logo" />
         <span>Sohor <b>Coffee</b></span>
       </a>
 
@@ -33,28 +38,82 @@
         <a href="#menu">Menu</a>
         <a href="#contact">Contact</a>
       </div>
+
       <div class="navbar-extra">
-        <a href="#" id="search"> <i data-feather="search"></i></a>
-        <a href="#" id="shopping-cart"> <i data-feather="shopping-cart"></i></a>
-        <a href="#" id="login"> <i data-feather="log-in"></i></a>
+        <a href="#" id="search-btn" @click.prevent="searchOpen = !searchOpen">
+          <i data-feather="search"></i>
+        </a>
+        <a href="#" id="shop-cart" @click.stop.prevent="cartOpen = !cartOpen">
+          <i data-feather="shopping-cart"></i>
+          <span
+            class="quantity-badge"
+            x-show="quantity > 0"
+            x-text="quantity"
+          ></span>
+        </a>
+        <a href="landing.html" id="login-btn"> <i data-feather="log-in"></i></a>
         <a href="#" id="hamburger-menu"> <i data-feather="menu"></i></a>
       </div>
-    </nav>
-    <!--navbar end-->
 
-    <!--Hero Section Start-->
+      <div
+        class="shopping-cart"
+        :class="{'active': cartOpen}"
+        @click.away="cartOpen = false"
+      >
+        <template x-if="!cart.length">
+          <p style="margin-top: 1rem; text-align: center">Keranjang Kosong</p>
+        </template>
+
+        <template x-for="(item, index) in cart" :key="index">
+          <div class="cart-item">
+            <img :src="`img/menu/${item.img}`" :alt="item.name" />
+            <div class="item-details">
+              <h3 x-text="item.name"></h3>
+              <div class="item-price">
+                <span x-text="formatIDR(item.price)"></span> &times;
+                <button id="remove" @click="remove(item.id)">&minus;</button>
+                <span x-text="item.quantity"></span>
+                <button id="add" @click="add(item)">&plus;</button>
+                = <span x-text="formatIDR(item.total)"></span>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <h4 x-show="cart.length" style="margin-top: 1rem">
+          Total: <span x-text="formatIDR(total)"></span>
+        </h4>
+      </div>
+
+      <div
+        class="search-form"
+        x-show="searchOpen"
+        x-transition
+        @click.away="searchOpen = false"
+        x-effect="searchOpen && $nextTick(() => $refs.searchInput.focus())"
+      >
+        <input
+          type="search"
+          id="search-box"
+          placeholder="Cari Disini..."
+          x-model="search"
+          x-ref="searchInput"
+          autocomplete="off"
+        />
+        <label for="search-box"><i data-feather="search"></i></label>
+      </div>
+    </nav>
+
     <section class="hero" id="home">
       <main class="content">
         <h1>Kopi Nikmat, <span>Cerita Hebat.</span></h1>
         <p>Good Coffee Makes Your Feelings Good</p>
-        <a href="#" class="cta">Buy Now</a>
+        <a href="#menu" class="cta">Buy Now</a>
       </main>
     </section>
-    <!--Hero Section End-->
-    <!--About Us Section Start-->
+
     <section class="about" id="about">
       <h2><span>About</span> Us</h2>
-
       <div class="row">
         <div class="about-img">
           <img src="img/kopi4.jpg" alt="About Us" />
@@ -63,129 +122,176 @@
           <h3>Kenapa harus Sohor <span> Coffee?</span></h3>
           <p>
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt,
-            dignissimos exercitationem? Excepturi, iure! Suscipit provident
-            modi, rem itaque ullam ad aspernatur excepturi odit voluptates,
-            consectetur, deserunt atque unde. Rerum, facilis.
+            dignissimos exercitationem? Excepturi, iure!
           </p>
           <p>
             Lorem ipsum dolor, sit amet consectetur adipisicing elit. Totam
-            accusamus, aspernatur cupiditate ad veritatis dignissimos veniam,
-            iusto eum repellendus quisquam quis illo obcaecati doloribus,
-            tempora ab excepturi quia. Sint, id.
+            accusamus, aspernatur cupiditate ad veritatis.
           </p>
         </div>
       </div>
     </section>
-    <!--About Us Section End-->
-    <!--Menu Section Start-->
-   <section class="menu" id="menu">
-<h2><span>Menu</span> Kami</h2>
-<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum itaque suscipit cupiditate voluptatum iure in.</p>
-<div class="row">
-  <div class="menu-card">
-    <img src="img/menu/lima.jpg" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">-Sanger Coffee-</h3>
-    <p class="menu-card-price">Rp. 11k</p>
-  </div>
-  <div class="menu-card">
-    <img src="img/menu/dua.jpg" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">-Coffee Latte-</h3>
-    <p class="menu-card-price">Rp. 14k</p>
-  </div>
-  <div class="menu-card">
-    <img src="img/menu/tiga.jpg" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">- Palm Sugar Coffee Latte-</h3>
-    <p class="menu-card-price">Rp. 16k</p>
-  </div>
-  <div class="menu-card">
-    <img src="img/menu/empat.jpg" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">-Lemonade Tea-</h3>
-    <p class="menu-card-price">Rp. 9k</p>
-  </div>
-  <div class="menu-card">
-    <img src="img/menu/satu.png" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">-Lemonade Tea-</h3>
-    <p class="menu-card-price">Rp. 9k</p>
-  </div>
-</div>
-<div class="row">
-  <div class="menu-card">
-    <img src="img/menu/lima.jpg" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">-Sanger Coffee-</h3>
-    <p class="menu-card-price">Rp. 11k</p>
-  </div>
-  <div class="menu-card">
-    <img src="img/menu/dua.jpg" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">-Coffee Latte-</h3>
-    <p class="menu-card-price">Rp. 14k</p>
-  </div>
-  <div class="menu-card">
-    <img src="img/menu/tiga.jpg" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">- Palm Sugar Coffee Latte-</h3>
-    <p class="menu-card-price">Rp. 16k</p>
-  </div>
-  <div class="menu-card">
-    <img src="img/menu/empat.jpg" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">-Lemonade Tea-</h3>
-    <p class="menu-card-price">Rp. 9k</p>
-  </div>
-  <div class="menu-card">
-    <img src="img/menu/satu.png" alt="Coffee Latte" class="menu-card-img">
-    <h3 class="menu-card-tittle">-Lemonade Tea-</h3>
-    <p class="menu-card-price">Rp. 9k</p>
-  </div>
-</div>
-    <!--Menu Section End-->
-    <!--Contact section start-->
+
+    <section class="menu" id="menu">
+      <h2><span>Menu</span> Kami</h2>
+      <p>
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Culpa
+        asperiores debitis eligendi distinctio ex explicabo quisquam veritatis
+        cumque ipsam tenetur?
+      </p>
+
+      <div class="row">
+        <template x-for="(item, index) in filteredItems" :key="index">
+          <div class="menu-card">
+            <img
+              :src="`img/menu/${item.img}`"
+              :alt="item.name"
+              class="menu-card-img"
+            />
+
+            <h3 class="menu-card-tittle" x-text="item.name"></h3>
+
+            <div class="star-rating">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star-half-stroke"></i>
+            </div>
+
+            <p class="menu-card-price" x-text="formatIDR(item.price)"></p>
+
+            <div class="info-action">
+              <button
+                type="button"
+                class="action-btn"
+                @click.prevent="showDetail(item)"
+                aria-label="Lihat Detail"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+
+              <button
+                type="button"
+                class="action-btn"
+                @click.prevent="add(item)"
+                aria-label="Tambah ke Keranjang"
+              >
+                <i class="fa-solid fa-cart-shopping"></i>
+              </button>
+            </div>
+          </div>
+        </template>
+        <template x-if="filteredItems.length === 0">
+          <p style="text-align: center; width: 100%; grid-column: 1/-1">
+            Menu "<span x-text="search"></span>" tidak ditemukan.
+          </p>
+        </template>
+      </div>
+    </section>
+
     <section id="contact" class="contact">
       <h2><span>Kontak</span> Kami</h2>
-<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus, quos?</p>
-<div class="row">
-  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3981.5307268115725!2d98.65296727473293!3d3.6936053962803634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30312dce248a2e25%3A0xfc0ac5bb629dc522!2sIrian%20Supermarket%20%26%20Dept.%20Store%20Marelan!5e0!3m2!1sid!2sid!4v1770608863140!5m2!1sid!2sid" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"  class="map"></iframe>
-  <form action="">
-    <div class="input-group">
-       <i data-feather="user"></i>
-       <input type="text" placeholder="nama">
-    </div>
-    <div class="input-group">
-       <i data-feather="mail"></i>
-       <input type="text" placeholder="email">
-    </div>
-    <div class="input-group">
-       <i data-feather="phone"></i>
-       <input type="text" placeholder="phone number">
+      <div class="row">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3981.5307268115725!2d98.65296727473293!3d3.6936053962803634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30312dce248a2e25%3A0xfc0ac5bb629dc522!2sIrian%20Supermarket%20%26%20Dept.%20Store%20Marelan!5e0!3m2!1sen!2sid!4v1772339073196!5m2!1sen!2sid"
+          style="border: 0"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="map"
+        ></iframe>
+
+        <form action="">
+          <div class="input-group">
+            <i data-feather="user"></i>
+            <input type="text" placeholder="nama" />
+          </div>
+          <div class="input-group">
+            <i data-feather="mail"></i>
+            <input type="email" placeholder="email" />
+          </div>
+          <div class="input-group">
+            <i data-feather="phone"></i>
+            <input type="text" placeholder="phone number" />
+          </div>
+          <button type="submit" class="btn">Kirim Pesan</button>
+        </form>
       </div>
-      <button type="submit" class="btn">Kirim Pesan</button>
-  </form>
-</div>   
-</section>
-    <!--Contact section end-->
-    <!--Footer section start-->
+    </section>
+
     <footer>
-    <div class="socials">
-      <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
-      <a href="#"><i class="fa-brands fa-instagram"></i></a>
-      <a href="#"><i class="fa-brands fa-x-twitter"></i></i></a>
-      <a href="#"><i class="fa-brands fa-tiktok"></i></a>
-    </div>
-
-    <div class="links">
-      <a href="#home">Home</a>
-      <a href="#about">About Us</a>
-      <a href="#menu">Menu</a>
-      <a href="#contact">Contact</a>
-    </div>
-
-    <div class="credit">
-      <p>Created by <a href="">M Abiyyu Arkan</a>. | &copy; 2026</p>
-    </div>
+      <div class="socials">
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+      </div>
+      <div class="links">
+        <a href="#home">Home</a>
+        <a href="#about">About Us</a>
+        <a href="#menu">Menu</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="credit">
+        <p>Created by <a href="">M Abiyyu Arkan</a>. | © 2026</p>
+      </div>
     </footer>
-    <!--Footer section end-->
-    <!--icons-->
+
+    <div
+      class="modal"
+      id="item-details-modal"
+      x-show="modalOpen"
+      x-cloak
+      x-transition
+    >
+      <div class="modal-container" @click.away="modalOpen = false">
+        <a href="#" class="close-icon" @click.prevent="modalOpen = false">
+          <i data-feather="x"></i>
+        </a>
+
+        <div class="modal-content">
+          <template x-if="activeItem.img">
+            <img :src="`img/menu/${activeItem.img}`" :alt="activeItem.name" />
+          </template>
+
+          <div class="product-content">
+            <h3 x-text="activeItem.name"></h3>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+              Architecto, laboriosam.
+            </p>
+
+            <div class="star-rating">
+              <i data-feather="star" class="full-rating"></i>
+              <i data-feather="star" class="full-rating"></i>
+              <i data-feather="star" class="full-rating"></i>
+              <i data-feather="star" class="full-rating"></i>
+              <i data-feather="star"></i>
+            </div>
+
+            <p
+              class="menu-card-price"
+              x-text="activeItem.price ? formatIDR(activeItem.price) : ''"
+            ></p>
+
+            <a
+              href="#"
+              class="add-cart"
+              @click.prevent="add(activeItem); modalOpen = false"
+            >
+              <i data-feather="shopping-cart"></i>
+              <span>add to cart</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
+      // Initialize icons
       feather.replace();
     </script>
-    <!--Javascript-->
     <script src="js/script.js"></script>
   </body>
 </html>

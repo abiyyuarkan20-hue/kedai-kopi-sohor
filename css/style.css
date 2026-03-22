@@ -21,7 +21,7 @@ body {
   font-family: Poppins, sans-serif;
   background-color: var(--bg);
   color: #fff;
-  min-height: 200rem;
+  margin: 0;
 }
 
 /*Navbar*/
@@ -40,6 +40,10 @@ body {
 }
 
 .navbar .navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
   font-size: 2rem;
   font-weight: 700;
   color: #fff;
@@ -81,19 +85,258 @@ body {
   transform: scaleX(0.5);
 }
 
-.navbar .navbar-extra a {
-  color: #fff;
-  margin: 0 0.5rem;
+/* Container Utama */
+.navbar .navbar-extra {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
 }
 
+/* Base Ikon */
+.navbar .navbar-extra a {
+  color: rgba(255, 255, 255, 0.6); /* Warna agak pudar di awal */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  position: relative;
+  border-radius: 15px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); /* Animasi super smooth */
+  text-decoration: none;
+  overflow: hidden;
+}
+
+/* Efek saat AREA Navigasi disentuh (Ikon lain mengecil) */
+.navbar .navbar-extra:hover a {
+  transform: scale(0.8);
+  filter: blur(1px); /* Efek kedalaman: ikon lain jadi agak blur */
+  opacity: 0.4;
+}
+
+/* Efek Spesifik saat SATU Ikon di-Hover (Ikon Utama) */
 .navbar .navbar-extra a:hover {
+  width: 90px; /* Memanjang lebih dramatis */
   color: var(--primary);
+  transform: scale(1.15); /* Membesar sedikit */
+  filter: blur(0); /* Tajam kembali */
+  opacity: 1;
+  background: rgba(var(--primary-rgb), 0.05);
+  border-color: var(--primary);
+
+  /* Double Glow: Luar dan Dalam */
+  box-shadow:
+    0 0 20px rgba(var(--primary-rgb), 0.4),
+    inset 0 0 10px rgba(var(--primary-rgb), 0.2);
+}
+
+/* Cahaya Berjalan (Shine Effect) pada Border */
+.navbar .navbar-extra a::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+  transform: scale(0);
+  transition: transform 0.6s ease;
+}
+
+.navbar .navbar-extra a:hover::after {
+  transform: scale(1);
+}
+
+/* Quantity Badge Adjustment */
+.navbar .navbar-extra a .quantity-badge {
+  background-color: var(--primary);
+  color: #000;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.navbar .navbar-extra a:hover .quantity-badge {
+  transform: scale(1.2) translateX(5px); /* Badge bergeser sedikit saat memanjang */
 }
 
 #hamburger-menu {
   display: none;
 }
 
+/*Navbar Search Form*/
+.navbar .search-form {
+  border-radius: 50px;
+  position: absolute;
+  top: 100%;
+  right: 7%;
+  background-color: #fff;
+  width: 30rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: 0.3s;
+}
+
+.navbar .search-form.active {
+  transform: scaleY(1);
+}
+
+.navbar .search-form input {
+  width: 100%;
+  height: 100%;
+  font-size: 1.2rem;
+  color: var(--bg);
+  margin-left: 3rem;
+  border-radius: 50px;
+}
+
+.navbar .search-form label {
+  color: var(--bg);
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-right: 1.5rem;
+  margin-top: 0.4rem;
+  padding: 1rem;
+}
+
+/*Shopping Cart*/
+.shopping-cart {
+  position: absolute;
+  top: 100%; /* Menempel tepat di bawah navbar */
+  right: -100%;
+  width: 35rem;
+  height: calc(100vh - 100%); /* Tinggi sisa layar setelah navbar */
+  background-color: #fff;
+  padding: 1.5rem;
+  transition: 0.4s ease-in-out;
+  z-index: 998; /* Di bawah navbar (999) tapi di atas konten lain */
+  color: var(--bg);
+  box-shadow: -5px 5px 15px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  border-left: 1px solid var(--extra);
+}
+.shopping-cart.active {
+  right: 0;
+}
+
+.shopping-cart .cart-item {
+  margin: 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed #666;
+}
+
+.shopping-cart .cart-item img {
+  height: 6rem;
+  width: 6rem;
+  border-radius: 10px; /* Ubah ke kotak tumpul agar gambar menu lebih jelas */
+  object-fit: cover;
+}
+
+.shopping-cart .item-details h3 {
+  color: var(--bg);
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.shopping-cart .item-price {
+  font-size: 1.2rem;
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.shopping-cart .cart-item .remove-item {
+  color: var(--bg);
+  position: absolute;
+  right: 3rem;
+  height: 30px;
+  width: 30px;
+  cursor: pointer;
+}
+
+.shopping-cart .item-price button {
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shopping-cart .item-price button:hover {
+  background-color: var(--bg);
+}
+
+.shopping-cart .cart-item .remove-item:hover {
+  color: var(--primary);
+  transition: 0.2s;
+}
+
+/* Total Section */
+.shopping-cart .cart-total {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--bg);
+  text-align: right;
+}
+
+.shopping-cart .cart-total h4 {
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.shopping-cart .checkout-btn {
+  display: block;
+  width: 100%;
+  background-color: var(--primary);
+  color: #fff;
+  text-align: center;
+  padding: 1.2rem;
+  border-radius: 5px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.shopping-cart .checkout-btn:hover {
+  background-color: var(--bg);
+}
+
+#shop-cart {
+  position: relative;
+}
+
+.quantity-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  position: absolute;
+  top: 0;
+  right: -10px;
+  line-height: 1.2;
+}
 /*Hero Section*/
 .hero {
   min-height: 100vh;
@@ -110,14 +353,14 @@ body {
   content: "";
   display: block;
   position: absolute;
-  width: 100%;
+  inset: auto 0 0 0;
   height: 30%;
-  bottom: 0;
   background: linear-gradient(
     0deg,
-    rgba(12, 11, 11) 8%,
+    rgba(12, 11, 11, 1) 8%,
     rgba(255, 255, 255, 0) 50%
   );
+  pointer-events: none;
 }
 
 .hero .content {
@@ -216,34 +459,133 @@ body {
 .contact p {
   margin-bottom: 1rem;
 }
+
 .menu p,
 .contact p {
   text-align: center;
-  max-width: 30rem;
-  margin: auto;
-  font-weight: 100;
-  line-height: 1.6rem;
+  max-width: 45rem;
+  margin: 0 auto 3rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+.menu .row template {
+  display: contents;
 }
 
 .menu .row {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 3rem;
-  justify-content: space-evenly;
+  display: grid;
+  /* Creates a responsive grid without needing tons of media queries */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2.5rem;
+  padding: 0 2rem;
 }
 
 .menu-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--extra);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: 0.3s ease;
+}
+
+.menu-card:hover {
+  transform: translateY(-10px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
 }
 
 .menu .row .menu-card img {
   border-radius: 50%;
-  height: 10rem;
-  width: 10rem;
+  height: 12rem;
+  width: 12rem;
+  object-fit: cover;
+  border: 3px solid var(--primary);
+  margin-bottom: 1.5rem;
 }
 
 .menu .row .menu-card .menu-card-tittle {
-  margin: 1rem auto 0.5rem;
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.menu .row .menu-card .menu-card-price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: auto;
+}
+
+.star-rating {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+/* SEMUA STAR */
+.star-rating svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+
+/* FULL STAR */
+.star-rating svg.full-rating {
+  fill: var(--primary);
+}
+
+/* HALF STAR */
+.star-rating svg.half-rating {
+  fill: var(--primary);
+  /* potong fill saja, stroke tetap */
+  -webkit-mask-image: linear-gradient(90deg, #000 50%, transparent 50%);
+  mask-image: linear-gradient(90deg, #000 50%, transparent 50%);
+}
+
+/* hover effect */
+
+.menu .row .menu-card .info-action {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #fff;
+  color: #fff;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.action-btn i {
+  font-size: 1.4rem; /* Ukuran ikon */
+  pointer-events: none; /* Menghindari klik tidak sengaja pada ikon */
+}
+
+/* Efek Hover */
+.action-btn:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  transform: scale(1.1); /* Sedikit membesar saat di-hover */
+}
+
+.action-btn:active {
+  transform: scale(0.9); /* Sedikit mengecil saat diklik */
 }
 
 /* Contact section */
@@ -297,9 +639,9 @@ body {
 footer {
   background-color: var(--primary);
   text-align: center;
-  padding: 0.5rem 0;
+  width: 100%;
   margin-top: 3rem;
-  padding-bottom: 3rem;
+  padding: 1.6rem 0;
 }
 
 footer .socials {
@@ -339,18 +681,145 @@ footer .credit a {
   color: var(--bg);
   font-weight: 700;
 }
-/*media queries*/
 
-/*Laptop*/
-@media (max-width: 1366px) {
-  html {
-    font-size: 75%;
+/*Item details modal*/
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex; /* Keep this so it centers when it DOES show */
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
+.modal.active {
+  display: flex;
+  opacity: 1;
+}
+
+/* container */
+.modal .modal-container {
+  position: relative;
+  background-color: #fff;
+  color: var(--bg);
+
+  width: 80%;
+  max-width: 800px;
+  padding: 2rem;
+  border-radius: 10px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+  animation: animateModal 0.5s ease;
+}
+
+/* close button */
+.modal-container .close-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: var(--bg);
+  cursor: pointer;
+}
+
+.modal-container .close-icon:hover {
+  color: var(--primary);
+}
+
+/* content layout */
+.modal-content {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+/* image */
+.modal-content img {
+  width: 15rem;
+  height: 15rem;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* text */
+.modal-content .product-content {
+  flex: 1;
+}
+
+.modal-content .product-content h3 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-content .product-content p {
+  text-align: justify;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.add-cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  background-color: transparent;
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.add-cart:hover {
+  background-color: var(--primary);
+  transition: 0.3s ease-in-out;
+  color: #fff;
+}
+
+.cart-content .add-cart svg {
+  stroke: var(--primary);
+}
+
+.cart-content .add-cart span {
+  color: var(--primary);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* animation */
+@keyframes animateModal {
+  from {
+    top: -300px;
+    opacity: 0;
+  }
+  to {
+    top: 0;
+    opacity: 1;
   }
 }
+
+@keyframes closeModal {
+  from {
+    top: 0;
+    opacity: 1;
+  }
+  to {
+    top: -300px;
+    opacity: 0;
+  }
+}
+
+/*media queries*/
 /*Tablet*/
-@media (max-width: 828px) {
+@media (max-width: 868px) {
   html {
-    font-size: 56%;
+    font-size: 65%;
   }
   #hamburger-menu {
     display: inline-block;
@@ -409,17 +878,19 @@ footer .credit a {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 2rem;
   }
 
   .menu-card {
+    flex-direction: column;
     text-align: center;
     margin: 3rem 2rem 2rem;
   }
 
   .menu .row .menu-card img {
     border-radius: 50%;
-    height: 40rem;
-    width: 40rem;
+    height: 30rem;
+    width: 30rem;
   }
 
   .menu .row .menu-card .menu-card-tittle {
@@ -431,8 +902,11 @@ footer .credit a {
     line-height: 2rem;
   }
 
-  .contact .row form {
+  .contact .row {
     flex-wrap: wrap;
+  }
+
+  .contact .row form {
     width: 100%;
   }
 
@@ -443,18 +917,43 @@ footer .credit a {
   .contact .row form {
     padding-top: 0;
   }
-  /*Mobile*/
-  @media (max-width: 640px) {
-    html {
-      font-size: 40%;
-    }
+
+  .modal-content {
+    flex-direction: column;
+    text-align: center;
   }
 
-  .about {
-    padding: 0 1 3rem;
+  .modal-content img {
+    width: 12rem;
+    height: 12rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  html {
+    font-size: 55%;
   }
 
-  .about .row {
-    flex-wrap: wrap;
+  .navbar {
+    padding: 1rem 5%;
+  }
+
+  .navbar .search-form {
+    width: calc(100% - 10%);
+    right: 5%;
+  }
+
+  .hero .content {
+    padding: 1.2rem 8%;
+  }
+
+  .contact .row form {
+    padding: 2rem 1.2rem;
+  }
+
+  .modal .modal-container {
+    width: calc(100% - 10%);
+    padding: 1.5rem;
   }
 }
