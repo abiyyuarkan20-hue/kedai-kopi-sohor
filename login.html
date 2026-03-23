@@ -155,9 +155,11 @@
             <div class="profile-header-premium">
               <div class="avatar-ring">
                 <img
-                  :src="user.picture || 'https://ui-avatars.com/api/?name=' + user.name + '&background=d4a373&color=fff'"
+                  :src="user.picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=d4a373&color=fff'"
                   class="user-avatar"
                   alt="Profile"
+                  referrerpolicy="no-referrer"
+                  @error="$el.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=d4a373&color=fff'"
                 />
               </div>
               <div class="user-info-text">

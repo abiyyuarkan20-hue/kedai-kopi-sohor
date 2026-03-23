@@ -145,15 +145,23 @@ document.addEventListener("alpine:init", () => {
     },
 
     saveUserData(user) {
+      // Cek semua kemungkinan field tempat Google menyimpan URL foto
+      const googlePhoto =
+        user.user_metadata?.avatar_url ||
+        user.user_metadata?.picture ||
+        user.user_metadata?.full_res_image || // Beberapa provider lain
+        null;
+
       const userData = {
         name:
           user.user_metadata?.full_name ||
           user.user_metadata?.name ||
           user.email.split("@")[0],
         email: user.email,
-        picture:
-          user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+        // Gunakan URL foto dari metadata, jika tidak ada baru null
+        picture: googlePhoto,
       };
+
       localStorage.setItem("user", JSON.stringify(userData));
       this.user = userData;
     },
