@@ -210,7 +210,7 @@ document.addEventListener("alpine:init", () => {
         } = await sbClient.auth.getSession();
         if (!session || sessionError) {
           alert(
-            "Sesi Anda telah habis atau belum login. Silakan login kembali!",
+            "Sesi Anda telah habis atau belum melakukan login. Silakan login kembali!",
           );
           localStorage.removeItem("user"); // Bersihkan sisa data lama jika ada
           window.location.href = "login.html";
