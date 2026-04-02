@@ -234,10 +234,13 @@ document.addEventListener("alpine:init", () => {
         formData.append("phoneNumber", this.customer.phone);
         // Pertimbangkan untuk mengirim session.access_token ke PHP juga untuk validasi backend
 
-        const response = await fetch("php/placeOrder.php", {
-          method: "POST",
-          body: formData,
-        });
+        const response = await fetch(
+          "https://sohor-kopi.wuaze.com/php/placeOrder.php",
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
 
         if (!response.ok) throw new Error("Gagal menghubungi server");
         const token = await response.text();
