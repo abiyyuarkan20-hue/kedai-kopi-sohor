@@ -3,7 +3,7 @@ require_once dirname(__FILE__) . '/midtrans-php-master/Midtrans.php';
 
 // Konfigurasi Supabase (Sama dengan yang ada di JS kamu)
 $supabase_url = "https://oedjjfbfndfvqkrdqepm.supabase.co";
-$supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Gunakan Anon Key
+$supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lZGpqZmJmbmRmdnFrcmRxZXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxOTA2NTIsImV4cCI6MjA4OTc2NjY1Mn0.iToPibvOYgJC6vvThHUQn2zYzqzIMEoXjYXwbpT6kX4";
 
 \Midtrans\Config::$serverKey = 'Mid-server-r3KjRyre0accECubfgb_bToF';
 \Midtrans\Config::$isProduction = false;
