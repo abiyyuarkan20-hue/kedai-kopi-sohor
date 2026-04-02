@@ -1,5 +1,4 @@
 // 1. Inisialisasi Supabase
-// Gunakan window agar tidak error "already declared" jika script ter-load 2x
 window.SUPABASE_URL = "https://oedjjfbfndfvqkrdqepm.supabase.co".trim();
 window.SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lZGpqZmJmbmRmdnFrcmRxZXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxOTA2NTIsImV4cCI6MjA4OTc2NjY1Mn0.iToPibvOYgJC6vvThHUQn2zYzqzIMEoXjYXwbpT6kX4".trim();
@@ -21,7 +20,6 @@ document.addEventListener("alpine:init", () => {
     formData: { name: "", email: "", password: "" },
 
     init() {
-      // PENTING: Sekarang checkSession sudah ada di bawah, jadi tidak akan error lagi
       this.checkSession();
 
       Alpine.watch(
@@ -34,7 +32,6 @@ document.addEventListener("alpine:init", () => {
       this.initGoogleAuth();
     },
 
-    // --- FUNGSI YANG SEBELUMNYA HILANG ---
     async checkSession() {
       try {
         const {
@@ -130,26 +127,27 @@ document.addEventListener("alpine:init", () => {
       }
     },
 
+    // Blok kode ini sudah diperbaiki dan digabungkan dengan preferensi style Anda
     renderGoogleButton() {
       setTimeout(() => {
         const btn = document.getElementById("google-login-button");
         if (btn && typeof google !== "undefined") {
           google.accounts.id.renderButton(btn, {
-            theme: "filled_black",
+            theme: "outline",
             size: "large",
             shape: "pill",
             width: btn.offsetWidth || 300,
+            logo_alignment: "center",
           });
         }
       }, 300);
     },
 
     saveUserData(user) {
-      // Cek semua kemungkinan field tempat Google menyimpan URL foto
       const googlePhoto =
         user.user_metadata?.avatar_url ||
         user.user_metadata?.picture ||
-        user.user_metadata?.full_res_image || // Beberapa provider lain
+        user.user_metadata?.full_res_image ||
         null;
 
       const userData = {
@@ -158,7 +156,6 @@ document.addEventListener("alpine:init", () => {
           user.user_metadata?.name ||
           user.email.split("@")[0],
         email: user.email,
-        // Gunakan URL foto dari metadata, jika tidak ada baru null
         picture: googlePhoto,
       };
 
@@ -198,11 +195,4 @@ document.addEventListener("alpine:init", () => {
       }
     },
   });
-});
-google.accounts.id.renderButton(btn, {
-  theme: "outline", // Menggunakan outline agar background putih kita yang dominan
-  size: "large",
-  shape: "pill", // Akan dipotong oleh border-radius 16px kita
-  width: btn.offsetWidth,
-  logo_alignment: "center",
 });
