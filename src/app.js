@@ -203,12 +203,13 @@ document.addEventListener("alpine:init", () => {
       this.loading = true; // Aktifkan loading saat mengecek sesi
 
       try {
-        // 1. Cek sesi langsung ke Supabase (Validasi paling akurat)
+        // 1. Cek sesi (Validasi localStorage dan Supabase)
+        const savedUser = JSON.parse(localStorage.getItem("user"));
         const {
           data: { session },
           error: sessionError,
         } = await sbClient.auth.getSession();
-        if (!session || sessionError) {
+        if (!session || sessionError || !savedUser) {
           alert(
             "Sesi Anda telah habis atau belum melakukan login. Silakan login kembali!",
           );
