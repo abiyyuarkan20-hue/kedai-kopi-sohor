@@ -20,8 +20,10 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: htdocs/ # Lokasi folder di hosting
-          exclude: | # File yang tidak perlu di-upload
-            **/.git*
-            **/.vscode*
-            **/node_modules*
-            .github/**
+         protocol: ftp
+        port: 21
+        exclude: |
+          **/.git*
+          **/.vscode*
+          **/node_modules*
+          .github/**
