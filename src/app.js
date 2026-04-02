@@ -53,7 +53,8 @@ document.addEventListener("alpine:init", () => {
           if (error) throw error;
           if (data.user) {
             this.saveUserData(data.user);
-            window.location.href = "index.html";
+            // SARAN: Gunakan replace agar user tidak bisa 'back' ke halaman login setelah masuk
+            window.location.replace("index.html");
           }
         }
       } catch (err) {
@@ -86,16 +87,7 @@ document.addEventListener("alpine:init", () => {
 
   // --- B. DATA MENU, KERANJANG & MODAL ---
   Alpine.data("menu", () => ({
-    items: [
-      { id: 1, name: "Sanger Coffee", img: "lima.jpg", price: 30000 },
-      { id: 2, name: "Coffee Latte", img: "dua.jpg", price: 14000 },
-      { id: 3, name: "Palm Sugar Coffee Latte", img: "tiga.jpg", price: 16000 },
-      { id: 4, name: "Lemonade Tea", img: "empat.jpg", price: 9000 },
-      { id: 5, name: "Spanish Latte", img: "satu.png", price: 19000 },
-      { id: 6, name: "Mocha Coffee", img: "enam.jpg", price: 17000 },
-      { id: 7, name: "Kopi Susu", img: "tujuh.jpg", price: 15000 },
-      { id: 8, name: "Cappucinno", img: "delapan.jpg", price: 13000 },
-    ],
+    items: [],
     search: "",
     searchOpen: false,
     cart: [],
@@ -105,8 +97,20 @@ document.addEventListener("alpine:init", () => {
     loading: false,
     customer: { first_name: "", email: "", phone: "" },
 
-    init() {
-      // Sinkronkan data customer dengan user yang sedang login
+    async init() {
+      // 1. Ambil data produk dari Supabase
+      const { data, error } = await sbClient
+        .from("products")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.error("Gagal mengambil menu:", error);
+      } else {
+        this.items = data;
+      }
+
+      // 2. Sinkronkan data customer (kodemu yang lama)
       const savedUser = JSON.parse(localStorage.getItem("user"));
       if (savedUser) {
         this.customer.first_name = savedUser.name;
@@ -196,24 +200,39 @@ document.addEventListener("alpine:init", () => {
     },
 
     async checkout() {
-      const savedUser = JSON.parse(localStorage.getItem("user"));
-      if (!savedUser) {
-        alert("Anda harus login terlebih dahulu untuk melakukan checkout!");
-        window.location.href = "login.html";
-        return;
-      }
+      this.loading = true; // Aktifkan loading saat mengecek sesi
 
-      if (this.cart.length === 0) return alert("Keranjang masih kosong!");
-      if (!this.isFormValid) return alert("Mohon lengkapi data pengiriman!");
-
-      this.loading = true;
       try {
+        // 1. Cek sesi langsung ke Supabase (Validasi paling akurat)
+        const {
+          data: { session },
+          error: sessionError,
+        } = await sbClient.auth.getSession();
+        if (!session || sessionError) {
+          alert(
+            "Sesi Anda telah habis atau belum login. Silakan login kembali!",
+          );
+          localStorage.removeItem("user"); // Bersihkan sisa data lama jika ada
+          window.location.href = "login.html";
+          return;
+        } // 2. Validasi Keranjang & Form
+
+        if (this.cart.length === 0) {
+          alert("Keranjang masih kosong!");
+          return;
+        }
+        if (!this.isFormValid) {
+          alert("Mohon lengkapi data pengiriman!");
+          return;
+        } // 3. Proses Checkout ke PHP (Lanjutan kodemu)
+
         const formData = new FormData();
         formData.append("total", this.total);
         formData.append("items", JSON.stringify(this.cart));
         formData.append("name", this.customer.first_name);
         formData.append("email", this.customer.email);
         formData.append("phoneNumber", this.customer.phone);
+        // Pertimbangkan untuk mengirim session.access_token ke PHP juga untuk validasi backend
 
         const response = await fetch("php/placeOrder.php", {
           method: "POST",
