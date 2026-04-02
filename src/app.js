@@ -196,6 +196,13 @@ document.addEventListener("alpine:init", () => {
     },
 
     async checkout() {
+      const savedUser = JSON.parse(localStorage.getItem("user"));
+      if (!savedUser) {
+        alert("Anda harus login terlebih dahulu untuk melakukan checkout!");
+        window.location.href = "login.html";
+        return;
+      }
+
       if (this.cart.length === 0) return alert("Keranjang masih kosong!");
       if (!this.isFormValid) return alert("Mohon lengkapi data pengiriman!");
 
